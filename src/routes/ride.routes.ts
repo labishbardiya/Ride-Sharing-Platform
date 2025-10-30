@@ -134,14 +134,29 @@ router.get("/mine", requireAuth, async (req, res, next) => {
     const userId = req.auth!.userId;
     const hosted = await prisma.ride.findMany({
       where: { driver_id: userId },
+      include: { participants: { include: { user: { select: { name: true, rating: true } } } } },
       orderBy: { start_date: "asc" },
     });
+
+    // include participant relations on the joined rides so the frontend can show counts
     const joined = await prisma.rideParticipant.findMany({
       where: { user_id: userId, status: { in: ["booked"] } },
-      include: { ride: true },
+      include: { ride: { include: { participants: { include: { user: { select: { name: true, rating: true } } } } } } },
       orderBy: { booking_time: "desc" },
     });
-    res.json({ hosted, joined: joined.map(j => j.ride) });
+
+    // Normalize hosted rides to include participants array (already included)
+    const hostedNormalized = hosted.map(r => ({
+      ...r,
+      participants: r.participants || [],
+    }));
+
+    const joinedRides = joined.map(j => ({
+      ...j.ride,
+      participants: j.ride.participants || [],
+    }));
+
+    res.json({ hosted: hostedNormalized, joined: joinedRides });
   } catch (err) {
     next(err);
   }
@@ -151,7 +166,7 @@ router.get("/mine", requireAuth, async (req, res, next) => {
 router.get("/:id", requireAuth, async (req, res, next) => {
   try {
     const ride = await prisma.ride.findUnique({
-      where: { ride_id: req.params.id },
+      where: { ride_id: req.params.id as string },
       include: {
         driver: { select: { name: true, email: true } },
         vehicle: true,

@@ -1,7 +1,16 @@
 import dotenv from "dotenv";
 import { z } from "zod";
 
+// Load .env early
 dotenv.config();
+
+// In development provide a safe default JWT secret so the app can run without
+// requiring the developer to set env vars immediately. This is intentional for
+// local development only — production MUST set JWT_SECRET to a secure value.
+if (!process.env.JWT_SECRET && process.env.NODE_ENV !== "production") {
+  // 32 chars default to satisfy min length
+  process.env.JWT_SECRET = "dev-jwt-secret-please-change-123456";
+}
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),

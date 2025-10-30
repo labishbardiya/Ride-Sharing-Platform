@@ -244,7 +244,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\HP\\Desktop\\DBMS_peoject\\Ride-Sharing App Design\\src\\generated\\prisma",
+      "value": "/Users/labish/Documents/Projects/Progressing/Ride-Sharing-Platform/src/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -253,12 +253,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "darwin-arm64",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\HP\\Desktop\\DBMS_peoject\\Ride-Sharing App Design\\prisma\\schema.prisma",
+    "sourceFilePath": "/Users/labish/Documents/Projects/Progressing/Ride-Sharing-Platform/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -272,7 +272,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

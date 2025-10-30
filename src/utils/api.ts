@@ -16,35 +16,67 @@ export interface RegisterResponse {
 const API_BASE = ""; // relative to same origin proxy, e.g., /api
 
 export async function register(name: string, email: string, password: string, phone?: string): Promise<RegisterResponse> {
-  const res = await fetch(`${API_BASE}/api/auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, password, phone }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password, phone }),
+    });
+  } catch (err: any) {
+    // Network error or backend not reachable
+    throw new Error(
+      `Unable to reach API (POST /api/auth/register). Is the backend running on http://localhost:4000? ${err?.message || ''}`
+    );
+  }
 
   if (!res.ok) {
     let message = "Registration failed";
     try {
-      const data = await res.json();
-      message = data?.message || data?.error || message;
-    } catch {}
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        const data = await res.json();
+        message = data?.message || data?.error || message;
+        if (data?.issues) {
+          const issues = Object.values(data.issues).flat().map((i: any) => i.message).join('; ');
+          if (issues) message = `${message}: ${issues}`;
+        }
+      } else {
+        // Fallback to text for HTML/error pages so we surface the server response
+        const txt = await res.text();
+        if (txt) message = txt.slice(0, 1000); // cap length
+      }
+    } catch (e) {
+      // ignore parsing errors, keep default message
+    }
     throw new Error(message);
   }
   return res.json();
 }
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
-  const res = await fetch(`${API_BASE}/api/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+  } catch (err: any) {
+    throw new Error(`Unable to reach API (POST /api/auth/login). Is the backend running? ${err?.message || ''}`);
+  }
 
   if (!res.ok) {
     let message = "Login failed";
     try {
-      const data = await res.json();
-      message = data?.error || message;
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        const data = await res.json();
+        message = data?.error || data?.message || message;
+      } else {
+        const txt = await res.text();
+        if (txt) message = txt.slice(0, 1000);
+      }
     } catch {}
     throw new Error(message);
   }

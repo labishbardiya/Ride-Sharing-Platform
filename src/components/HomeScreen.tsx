@@ -32,7 +32,7 @@ export function HomeScreen({ onNavigate, onRideSelect }) {
           to: upcoming[0].end_location,
           time: new Date(upcoming[0].start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           status: 'upcoming',
-          participants: 0,
+          participants: (upcoming[0].participants || []).filter((p: any) => p.status === 'booked').length + 1,
           maxParticipants: 4,
         } : null);
         setRecentRides(upcoming.slice(0, 5).map(r => ({
@@ -44,7 +44,7 @@ export function HomeScreen({ onNavigate, onRideSelect }) {
           time: new Date(r.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           fare: `₹${Number(r.total_fare)}`,
           status: r.status,
-          participants: 0,
+          participants: (r.participants || []).filter((p: any) => p.status === 'booked').length + 1,
           maxParticipants: 4,
         })));
       } catch {}
@@ -65,7 +65,7 @@ export function HomeScreen({ onNavigate, onRideSelect }) {
             to: upcoming[0].end_location,
             time: new Date(upcoming[0].start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             status: 'upcoming',
-            participants: 0,
+            participants: (upcoming[0].participants || []).filter((p: any) => p.status === 'booked').length + 1,
             maxParticipants: 4,
           } : null);
           setRecentRides(upcoming.slice(0, 5).map(r => ({
@@ -77,7 +77,7 @@ export function HomeScreen({ onNavigate, onRideSelect }) {
             time: new Date(r.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             fare: `₹${Number(r.total_fare)}`,
             status: r.status,
-            participants: 0,
+            participants: (r.participants || []).filter((p: any) => p.status === 'booked').length + 1,
             maxParticipants: 4,
           })));
         } catch {}

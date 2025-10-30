@@ -33,15 +33,29 @@ export function ProfileScreen({ onNavigate }) {
     (async () => {
       try {
         const me = await fetchMe();
+        // Determine ride stats by calling the rides/mine endpoint (via helper)
+        let totalRides = 0;
+        let ridesHosted = 0;
+        let ridesJoined = 0;
+        try {
+          const api = await import('@/utils/api');
+          const data = await api.fetchMyRides();
+          ridesHosted = (data.hosted || []).length;
+          ridesJoined = (data.joined || []).length;
+          totalRides = ridesHosted + ridesJoined;
+        } catch (e) {
+          // ignore — leave counts as zero if fetch fails
+        }
+
         setUserProfile({
           name: me.name,
           email: me.email,
           phone: me.phone ?? "",
           role: me.role === 'committee_admin' ? 'Committee Admin' : 'Student',
           credibilityScore: me.rating ?? 4.7,
-          totalRides: 0,
-          ridesHosted: 0,
-          ridesJoined: 0,
+          totalRides,
+          ridesHosted,
+          ridesJoined,
           cancellationCount: me.cancellation_count ?? 0,
           joinDate: new Date(me.created_at).toLocaleString('en-US', { month: 'long', year: 'numeric' }),
         });

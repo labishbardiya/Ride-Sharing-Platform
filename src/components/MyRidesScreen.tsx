@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { fetchMyRides } from '@/utils/api';
 
-export function MyRidesScreen({ onNavigate, onRideSelect, onManageRide }) {
+export function MyRidesScreen({ onNavigate, onRideSelect, onManageRide }: { onNavigate: (to: string) => void; onRideSelect: (ride: any) => void; onManageRide: (ride: any) => void }) {
   const [selectedTab, setSelectedTab] = useState('booked');
   const [bookedRides, setBookedRides] = useState<any[]>([]);
   const [createdRides, setCreatedRides] = useState<any[]>([]);
@@ -39,11 +39,11 @@ export function MyRidesScreen({ onNavigate, onRideSelect, onManageRide }) {
           time: new Date(r.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           fare: `₹${Number(r.total_fare)}`,
           status: r.status,
-          participants: 0,
+          participants: (r.participants || []).filter((p: any) => p.status === 'booked').length + 1,
           maxParticipants: 4,
           vehicleType: r.vehicle?.vehicle_type || 'Car',
           vehicleNumber: '—',
-          passengers: [],
+          passengers: (r.participants || []).map((p: any) => ({ name: p.user?.name || 'Passenger', rating: p.user?.rating || 0 })),
         });
         setBookedRides((data.joined || []).map(toCard));
         setCreatedRides((data.hosted || []).map(toCard));
@@ -70,11 +70,11 @@ export function MyRidesScreen({ onNavigate, onRideSelect, onManageRide }) {
           time: new Date(r.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           fare: `₹${Number(r.total_fare)}`,
           status: r.status,
-          participants: 0,
+          participants: (r.participants || []).filter((p: any) => p.status === 'booked').length + 1,
           maxParticipants: 4,
           vehicleType: r.vehicle?.vehicle_type || 'Car',
           vehicleNumber: '—',
-          passengers: [],
+          passengers: (r.participants || []).map((p: any) => ({ name: p.user?.name || 'Passenger', rating: p.user?.rating || 0 })),
         });
         setBookedRides((data.joined || []).map(toCard));
         setCreatedRides((data.hosted || []).map(toCard));
@@ -108,7 +108,7 @@ export function MyRidesScreen({ onNavigate, onRideSelect, onManageRide }) {
     estimatedArrival: "5 mins"
   };
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case 'upcoming':
         return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Upcoming</Badge>;
@@ -123,7 +123,7 @@ export function MyRidesScreen({ onNavigate, onRideSelect, onManageRide }) {
     }
   };
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case 'upcoming':
         return <Calendar className="h-4 w-4 text-blue-500" />;
@@ -138,13 +138,13 @@ export function MyRidesScreen({ onNavigate, onRideSelect, onManageRide }) {
     }
   };
 
-  const handleCancelRide = (rideId) => {
+  const handleCancelRide = (rideId: number | string) => {
     // Handle ride cancellation
     console.log('Cancelling ride:', rideId);
     // In a real app, this would call an API
   };
 
-  const handleTrackRide = (ride) => {
+  const handleTrackRide = (ride: any) => {
     // Navigate to ride tracking/details
     onRideSelect(ride);
   };
